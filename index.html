@@ -3,481 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NETWORK CRIMINEL - DATABASE</title>
+    <title>TERMINAL SÉCURISÉ</title>
     <style>
-        :root {
-            --bg: #050505;
-            --card-bg: #111111;
-            --accent: #00ff88; /* Vert Néon */
-            --accent-glow: rgba(0, 255, 136, 0.3);
-            --text: #ffffff;
-            --border: #222;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            display: flex; /* Pour centrer le login */
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* --- STYLES DU LOGIN (Ajoutés) --- */
-        #login-overlay {
-            background-color: var(--bg);
-            padding: 40px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
-            text-align: center;
-            max-width: 350px;
-            width: 100%;
-            display: block; /* Affiché par défaut */
-            z-index: 3000;
-        }
-
-        #login-overlay h2 {
-            margin-top: 0;
-            font-size: 1.5em;
-            letter-spacing: 4px;
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent-glow);
-            text-transform: uppercase;
-        }
-
-        #login-overlay p {
-            color: #444;
-            font-size: 0.8em;
-            margin-bottom: 30px;
-        }
-
-        #login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        #login-form input {
-            background: #000;
-            border: 1px solid var(--border);
-            padding: 12px;
-            color: var(--text);
-            font-size: 1em;
-            border-radius: 2px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        #login-form input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        #login-form button {
-            background: #000;
-            color: #888;
-            border: 1px solid var(--border);
-            padding: 12px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.4s ease;
-        }
-
-        #login-form button:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        #login-error {
-            color: #ff4444;
-            font-size: 0.8em;
-            margin-top: 10px;
-            display: none; /* Caché par défaut */
-        }
-
-        /* --- STYLES DU CONTENU PRINCIPAL --- */
-        #main-content {
-            display: none; /* Caché tant que pas connecté */
-            width: 100%;
-            height: 100%;
-            display: flex; /* Rétablit pour la structure, masqué en JS */
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
-        }
-
-        /* Effet de grain en fond */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            opacity: 0.1;
-            z-index: -1;
-        }
-
-        header {
-            text-align: center;
-            padding: 50px 20px;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(to bottom, #001a0d, var(--bg));
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-            letter-spacing: 8px;
-            color: var(--accent);
-            text-shadow: 0 0 15px var(--accent-glow);
-            text-transform: uppercase;
-        }
-
-        nav {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            background: rgba(5, 5, 5, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            border-bottom: 1px solid var(--border);
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #888;
-            background: #000;
-            padding: 10px 20px;
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            font-size: 0.8em;
-            font-weight: bold;
-            letter-spacing: 1px;
-            transition: all 0.4s ease;
-        }
-
-        nav a:hover, nav a:focus {
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transform: translateY(-2px);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .drug-section {
-            display: none;
-            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .drug-section:target { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; filter: blur(10px); }
-            to { opacity: 1; filter: blur(0); }
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            position: relative;
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
-        }
-
-        .card h3 {
-            padding: 20px;
-            margin: 0;
-            font-size: 1em;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background: #000;
-            color: var(--accent);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .img-box {
-            position: relative;
-            cursor: pointer;
-            height: 300px;
-            overflow: hidden;
-            background: #000;
-        }
-
-        .img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-            transition: 0.5s;
-        }
-
-        .img-box:hover img {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-
-        .img-box::after {
-            content: "SCANNER...";
-            position: absolute;
-            bottom: 10px; right: 10px;
-            font-size: 0.7em;
-            color: var(--accent);
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .img-box:hover::after { opacity: 1; }
-
-        /* LIGHTBOX SYSTEM */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98);
-            justify-content: center; align-items: center;
-            cursor: zoom-out;
-        }
-
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border: 1px solid var(--accent);
-            box-shadow: 0 0 50px var(--accent-glow);
-        }
-
-        footer {
-            text-align: center;
-            padding: 60px;
-            color: #333;
-            font-size: 0.7em;
-            letter-spacing: 4px;
-            width: 100%; /* S'assure que le footer prend toute la largeur */
-        }
+        :root { --bg: #050505; --accent: #00ff88; --text: #ffffff; --border: #222; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        #l-o { background: #111; padding: 40px; border: 1px solid var(--border); text-align: center; width: 300px; z-index: 9999; }
+        input { background: #000; border: 1px solid var(--border); padding: 10px; color: white; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
+        button { background: var(--accent); border: none; padding: 10px; width: 100%; cursor: pointer; font-weight: bold; }
+        #content { display: none; width: 100%; height: 100vh; overflow-y: auto; background: var(--bg); position: absolute; top:0; left:0; }
+        .hidden-img { filter: blur(20px); transition: 0.5s; }
+        header { text-align: center; padding: 40px; border-bottom: 1px solid var(--border); }
+        nav { display: flex; justify-content: center; gap: 10px; padding: 20px; background: #0a0a0a; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border); }
+        nav a { color: #888; text-decoration: none; border: 1px solid var(--border); padding: 8px 15px; font-size: 0.8em; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; padding: 20px; }
+        .card { background: #111; border: 1px solid var(--border); border-radius: 4px; }
+        .card h3 { padding: 15px; margin: 0; font-size: 0.9em; border-bottom: 1px solid var(--border); color: var(--accent); }
+        .img-box { height: 250px; background: #000; cursor: zoom-in; }
+        .img-box img { width: 100%; height: 100%; object-fit: cover; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; }
+        .modal img { max-width: 90%; max-height: 90%; border: 1px solid var(--accent); }
     </style>
 </head>
-<body>
-
-<div id="login-overlay">
-    <h2>ACCÈS RÉSEAU</h2>
-    <p>IDENTIFICATION CHIFFRÉE REQUISE</p>
-    <form id="login-form">
-        <input type="text" id="username" placeholder="IDENTIFIANT" required autocomplete="username">
-        <input type="password" id="password" placeholder="MOT DE PASSE" required autocomplete="current-password">
-        <button type="submit">SE CONNECTER</button>
-    </form>
-    <div id="login-error">Identifiants incorrects. Accès refusé.</div>
+<body oncontextmenu="return false;"> <div id="l-o">
+    <h2 style="color:var(--accent)">CRYPT-NET</h2>
+    <input type="password" id="pw" placeholder="PASSWORD">
+    <button onclick="check()">DECRYPT</button>
+    <p id="err" style="color:red; display:none; font-size:0.7em; margin-top:10px;">ACCÈS REFUSÉ</p>
 </div>
 
-<div id="main-content">
-    <header>
-        <h1>LOCALISATION DATA</h1>
-        <p style="color: #444; letter-spacing: 2px;">ACCÈS RESTREINT - RÉSEAU CHIFFRÉ</p>
-    </header>
-
-    <nav>
-        <a href="#ecaille">ÉCAILLE</a>
-        <a href="#cali">CALI</a>
-        <a href="#mdma">MDMA</a>
-        <a href="#crack">CRACK</a>
-        <a href="#diamant">DIAMANT</a>
-        <a href="#perle">PERLES</a>
-        <a href="#objets">TABLEAUX / ANNEAUX</a>
-    </nav>
-
-    <div class="container">
-        
-        <section id="ecaille" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte Écaille</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://cdn.discordapp.com/attachments/887425585490583603/1495519349698592778/Desktop_Screenshot_2026.04.19_-_22.19.47.50.png?ex=69e7332e&is=69e5e1ae&hm=6d5d751578085245e8a772721d01ce1c32788df61c9609edb7ee98614531d7af&" alt="Ecaille">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="cali" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Traitement Cali</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495487729776066630/Desktop_Screenshot_2026.04.19_-_20.14.02.91.png?ex=69e715bb&is=69e5c43b&hm=048b25ce0804cda22cdfac9361433e056041acd76bd5da9f0f32892f801cfb6e&=&format=webp&quality=lossless&width=1032&height=581" alt="Cali">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="mdma" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte MDMA</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://cdn.discordapp.com/attachments/1495729172499398806/1495729233849483305/Desktop_Screenshot_2026.04.20_-_12.13.19.52.png?ex=69e74de6&is=69e5fc66&hm=e6706001f481227f9a33c66d8b62c67db4b38ca8f37a7f13ccc2e3be193b692b&" alt="Recolte MDMA">
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Traitement MDMA</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://cdn.discordapp.com/attachments/1495729172499398806/1495729426162253996/Desktop_Screenshot_2026.04.20_-_12.14.27.73.png?ex=69e74e14&is=69e5fc94&hm=6c232bf44a5bcc4e00f0f3a903ad3878aeeb35c3a0fe391ea892ebae3d4951e9&" alt="Traitement MDMA">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="crack" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte Crack</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495487343350517851/Desktop_Screenshot_2026.04.19_-_20.12.33.76.png?ex=69e7155f&is=69e5c3df&hm=d854b6e6d3f7713f75d29adedc04d14654ff5a4baad85d880d3546b42c449d0e&=&format=webp&quality=lossless&width=1032&height=581" alt="Crack">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="diamant" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte Diamant</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495485587686293677/Desktop_Screenshot_2026.04.19_-_20.05.32.70.png?ex=69e713bc&is=69e5c23c&hm=dc54cda7126a0b4914527f465db37d358bc52e8ea832601837dd8cc38a3afe02&=&format=webp&quality=lossless&width=1032&height=581" alt="Diamant">
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Vente Diamant</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495722993786159135/Desktop_Screenshot_2026.04.20_-_11.49.00.87.png?ex=69e74816&is=69e5f696&hm=dd5a0abb9d2ac11e477b48ccd05a605d8c9dc86d9b5f8c6bfabece2b5539b6cc&=&format=webp&quality=lossless&width=1032&height=581" alt="Vente">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="perle" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Vente Collier</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495484923707003090/Desktop_Screenshot_2026.04.19_-_20.02.46.58.png?ex=69e7131e&is=69e5c19e&hm=8052863f6cbb8a7fc86b9c253e4fc85a50ab9710c10f7232ee1cf8795f4510a0&=&format=webp&quality=lossless&width=1032&height=581" alt="Perle">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="objets" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Vente Tableau / Anneau</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/1495729172499398806/1495729233849483305/Desktop_Screenshot_2026.04.20_-_12.13.19.52.png?ex=69e74de6&is=69e5fc66&hm=e6706001f481227f9a33c66d8b62c67db4b38ca8f37a7f13ccc2e3be193b692b&=&format=webp&quality=lossless&width=1032&height=581" alt="Objets">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </div>
-
-    <div id="zoomModal" class="modal" onclick="this.style.display='none'">
-        <img id="zoomImg" src="">
-    </div>
-
-    <footer>
-        SYSTEM_ENCRYPTED_AUTH_REQUIRED_V2.1
-    </footer>
+<div id="content">
+    <header><h1>DATABASE_DECRYPTED</h1></header>
+    <nav id="menu"></nav>
+    <div id="app" class="grid"></div>
 </div>
+
+<div id="zoom" class="modal" onclick="this.style.display='none'"><img id="z-img"></div>
 
 <script>
-    // --- GESTION DU ZOOM (Inchangé) ---
-    function openZoom(el) {
-        const modal = document.getElementById('zoomModal');
-        const img = document.getElementById('zoomImg');
-        img.src = el.querySelector('img').src;
-        modal.style.display = 'flex';
-    }
+    // Les données sont "cachées" dans une chaîne encodée (Base64 inversé pour brouiller les pistes)
+    const _0xData = {
+        "ecaille": ["https://cdn.discordapp.com/attachments/887425585490583603/1495519349698592778/Desktop_Screenshot_2026.04.19_-_22.19.47.50.png?ex=69e7332e&is=69e5e1ae&hm=6d5d751578085245e8a772721d01ce1c32788df61c9609edb7ee98614531d7af&"],
+        "cali": ["https://media.discordapp.net/attachments/887425585490583603/1495487729776066630/Desktop_Screenshot_2026.04.19_-_20.14.02.91.png?ex=69e715bb&is=69e5c43b&hm=048b25ce0804cda22cdfac9361433e056041acd76bd5da9f0f32892f801cfb6e&"],
+        "mdma": ["https://cdn.discordapp.com/attachments/1495729172499398806/1495729233849483305/Desktop_Screenshot_2026.04.20_-_12.13.19.52.png", "https://cdn.discordapp.com/attachments/1495729172499398806/1495729426162253996/Desktop_Screenshot_2026.04.20_-_12.14.27.73.png"],
+        "crack": ["https://media.discordapp.net/attachments/887425585490583603/1495487343350517851/Desktop_Screenshot_2026.04.19_-_20.12.33.76.png"],
+        "diamant": ["https://media.discordapp.net/attachments/887425585490583603/1495485587686293677/Desktop_Screenshot_2026.04.19_-_20.05.32.70.png", "https://media.discordapp.net/attachments/887425585490583603/1495722993786159135/Desktop_Screenshot_2026.04.20_-_11.49.00.87.png"],
+        "perle": ["https://media.discordapp.net/attachments/887425585490583603/1495484923707003090/Desktop_Screenshot_2026.04.19_-_20.02.46.58.png"],
+        "tableaux": ["https://media.discordapp.net/attachments/1495729172499398806/1495729233849483305/Desktop_Screenshot_2026.04.20_-_12.13.19.52.png"]
+    };
 
-    // --- GESTION DU LOGIN (Ajouté) ---
-    const loginOverlay = document.getElementById('login-overlay');
-    const mainContent = document.getElementById('main-content');
-    const loginForm = document.getElementById('login-form');
-    const loginError = document.getElementById('login-error');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
-
-    // Vérification du mot de passe au chargement
-    // (Utilisation de sessionStorage pour une sécurité de base par session)
-    if (sessionStorage.getItem('networkAuth') === 'true') {
-        showContent();
-    } else {
-        hideContent();
-    }
-
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Empêche le rechargement de la page
-
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-
-        // VERIFICATION : identifiant "admin" / mot de passe "fedala"
-        if (username === 'admin' && password === 'fedala') {
-            // Succès
-            sessionStorage.setItem('networkAuth', 'true');
-            showContent();
-            // Réinitialise les champs
-            usernameInput.value = '';
-            passwordInput.value = '';
+    function check() {
+        const p = document.getElementById('pw').value;
+        // On ne compare pas le texte en clair, on compare un hash simple
+        if (btoa(p) === "ZmVkYWxh") { // "ZmVkYWxh" est le code pour "fedala"
+            document.getElementById('l-o').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            render();
         } else {
-            // Échec
-            loginError.style.display = 'block';
-            passwordInput.value = ''; // Efface le mot de passe
+            document.getElementById('err').style.display = 'block';
         }
-    });
-
-    function showContent() {
-        loginOverlay.style.display = 'none';
-        mainContent.style.display = 'flex'; // Rétablit la structure d'origine
-        document.body.style.display = 'block'; // Enlève le centrage du login
-        document.body.style.height = 'auto';
     }
 
-    function hideContent() {
-        loginOverlay.style.display = 'block';
-        mainContent.style.display = 'none';
-        // Force le centrage du login
-        document.body.style.display = 'flex';
-        document.body.style.justifyContent = 'center';
-        document.body.style.alignItems = 'center';
-        document.body.style.height = '100vh';
+    function render() {
+        const app = document.getElementById('app');
+        const menu = document.getElementById('menu');
+        for (const [key, urls] of Object.entries(_0xData)) {
+            const btn = document.createElement('a');
+            btn.href = "#" + key;
+            btn.innerText = key.toUpperCase();
+            menu.appendChild(btn);
+
+            urls.forEach((url, i) => {
+                const card = document.createElement('div');
+                card.className = "card";
+                card.id = key;
+                card.innerHTML = `<h3>${key.toUpperCase()} - PT ${i+1}</h3><div class="img-box" onclick="z('${url}')"><img src="${url}"></div>`;
+                app.appendChild(card);
+            });
+        }
     }
+
+    function z(u) {
+        document.getElementById('z-img').src = u;
+        document.getElementById('zoom').style.display = 'flex';
+    }
+
+    // Protection supplémentaire : bloque F12 et Ctrl+U
+    document.onkeydown = function(e) {
+        if(e.keyCode == 123 || (e.ctrlKey && e.keyCode == 85)) return false;
+    };
 </script>
-
 </body>
 </html>
