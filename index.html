@@ -2,480 +2,291 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NETWORK CRIMINEL - DATABASE</title>
+    <title>Panel Skyland - By Playeurz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #050505;
-            --card-bg: #111111;
-            --accent: #00ff88; /* Vert Néon */
-            --accent-glow: rgba(0, 255, 136, 0.3);
+            --card: #0f0f0f;
+            --red-glow: #e60000;
+            --red-soft: #b30000;
             --text: #ffffff;
+            --input-bg: #151515;
             --border: #222;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-            display: flex; /* Pour centrer le login */
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* --- STYLES DU LOGIN (Ajoutés) --- */
-        #login-overlay {
-            background-color: var(--bg);
-            padding: 40px;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
-            text-align: center;
-            max-width: 350px;
-            width: 100%;
-            display: block; /* Affiché par défaut */
-            z-index: 3000;
-        }
-
-        #login-overlay h2 {
-            margin-top: 0;
-            font-size: 1.5em;
-            letter-spacing: 4px;
-            color: var(--accent);
-            text-shadow: 0 0 10px var(--accent-glow);
-            text-transform: uppercase;
-        }
-
-        #login-overlay p {
-            color: #444;
-            font-size: 0.8em;
-            margin-bottom: 30px;
-        }
-
-        #login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        #login-form input {
-            background: #000;
-            border: 1px solid var(--border);
-            padding: 12px;
-            color: var(--text);
-            font-size: 1em;
-            border-radius: 2px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        #login-form input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 10px var(--accent-glow);
-        }
-
-        #login-form button {
-            background: #000;
-            color: #888;
-            border: 1px solid var(--border);
-            padding: 12px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            cursor: pointer;
-            border-radius: 2px;
-            transition: all 0.4s ease;
-        }
-
-        #login-form button:hover {
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        #login-error {
-            color: #ff4444;
-            font-size: 0.8em;
-            margin-top: 10px;
-            display: none; /* Caché par défaut */
-        }
-
-        /* --- STYLES DU CONTENU PRINCIPAL --- */
-        #main-content {
-            display: none; /* Caché tant que pas connecté */
-            width: 100%;
-            height: 100%;
-            display: flex; /* Rétablit pour la structure, masqué en JS */
-            flex-direction: column;
-            align-items: stretch;
-            justify-content: flex-start;
-        }
-
-        /* Effet de grain en fond */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-            opacity: 0.1;
-            z-index: -1;
-        }
-
-        header {
-            text-align: center;
-            padding: 50px 20px;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(to bottom, #001a0d, var(--bg));
-        }
-
-        h1 {
-            margin: 0;
-            font-size: 2.5em;
-            letter-spacing: 8px;
-            color: var(--accent);
-            text-shadow: 0 0 15px var(--accent-glow);
-            text-transform: uppercase;
-        }
-
-        nav {
             display: flex;
             justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            padding: 20px;
-            position: sticky;
-            top: 0;
-            background: rgba(5, 5, 5, 0.9);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            border-bottom: 1px solid var(--border);
-        }
-
-        nav a {
-            text-decoration: none;
-            color: #888;
-            background: #000;
-            padding: 10px 20px;
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            font-size: 0.8em;
-            font-weight: bold;
-            letter-spacing: 1px;
-            transition: all 0.4s ease;
-        }
-
-        nav a:hover, nav a:focus {
-            color: var(--accent);
-            border-color: var(--accent);
-            box-shadow: 0 0 15px var(--accent-glow);
-            transform: translateY(-2px);
+            padding: 40px 20px;
+            margin: 0;
+            min-height: 100vh;
+            letter-spacing: 0.5px;
         }
 
         .container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
+            width: 100%;
+            max-width: 950px;
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #1a1a1a;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
         }
 
-        .drug-section {
-            display: none;
-            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
         }
 
-        .drug-section:target { display: block; }
+        h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #fff;
+            /* Lueur adoucie pour le confort visuel */
+            text-shadow: 0 2px 10px rgba(230, 0, 0, 0.5);
+            letter-spacing: 8px;
+        }
 
-        @keyframes fadeIn {
-            from { opacity: 0; filter: blur(10px); }
-            to { opacity: 1; filter: blur(0); }
+        .subtitle {
+            font-size: 0.75rem;
+            color: #444;
+            letter-spacing: 4px;
+            margin-top: -5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .inputs-area {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 0.8rem;
+            color: var(--red-soft);
+            text-transform: uppercase;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        input {
+            background: var(--input-bg);
+            border: 2px solid #222;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            outline: none;
+            transition: 0.3s;
+            text-align: center;
+            width: 120px;
+        }
+
+        input:focus {
+            border-color: var(--red-soft);
+            background: #1c1c1c;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            border-left: 3px solid var(--red-soft);
+            padding-left: 15px;
+            margin-bottom: 20px;
+            color: #aaa;
+            text-transform: uppercase;
+            font-weight: 700;
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
         }
 
-        .card {
-            background: var(--card-bg);
+        button {
+            background: #111;
+            color: #bbb;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            position: relative;
-            transition: 0.3s;
-        }
-
-        .card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
-        }
-
-        .card h3 {
-            padding: 20px;
-            margin: 0;
-            font-size: 1em;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background: #000;
-            color: var(--accent);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .img-box {
-            position: relative;
+            padding: 14px;
+            border-radius: 8px;
             cursor: pointer;
-            height: 300px;
-            overflow: hidden;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.2s ease-in-out;
+        }
+
+        button:hover {
+            background: var(--red-soft);
+            color: #fff;
+            border-color: var(--red-glow);
+            box-shadow: 0 5px 15px rgba(230, 0, 0, 0.3);
+            transform: translateY(-3px);
+        }
+
+        #result-panel {
+            position: sticky;
+            bottom: 30px;
             background: #000;
-        }
-
-        .img-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-            transition: 0.5s;
-        }
-
-        .img-box:hover img {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-
-        .img-box::after {
-            content: "SCANNER...";
-            position: absolute;
-            bottom: 10px; right: 10px;
-            font-size: 0.7em;
-            color: var(--accent);
-            opacity: 0;
-            transition: 0.3s;
-        }
-
-        .img-box:hover::after { opacity: 1; }
-
-        /* LIGHTBOX SYSTEM */
-        .modal {
+            border: 2px solid var(--red-soft);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 40px;
             display: none;
-            position: fixed;
-            z-index: 2000;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98);
-            justify-content: center; align-items: center;
-            cursor: zoom-out;
-        }
-
-        .modal img {
-            max-width: 90%;
-            max-height: 90%;
-            border: 1px solid var(--accent);
-            box-shadow: 0 0 50px var(--accent-glow);
-        }
-
-        footer {
+            box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.9), 0 0 20px rgba(230, 0, 0, 0.2);
             text-align: center;
-            padding: 60px;
-            color: #333;
-            font-size: 0.7em;
-            letter-spacing: 4px;
-            width: 100%; /* S'assure que le footer prend toute la largeur */
+        }
+
+        .cmd-label { 
+            font-size: 0.8rem; 
+            color: #555; 
+            margin-bottom: 15px; 
+            text-transform: uppercase; 
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .cmd-value { 
+            font-family: 'Consolas', monospace; 
+            color: #fff; 
+            font-size: 1.3rem; 
+            font-weight: 700;
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px dashed #333;
+        }
+
+        .copy-status { 
+            color: #00ff66; 
+            font-size: 0.9rem; 
+            margin-top: 15px; 
+            font-weight: 700;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-<div id="login-overlay">
-    <h2>ACCÈS RÉSEAU</h2>
-    <p>IDENTIFICATION CHIFFRÉE REQUISE</p>
-    <form id="login-form">
-        <input type="text" id="username" placeholder="IDENTIFIANT" required autocomplete="username">
-        <input type="password" id="password" placeholder="MOT DE PASSE" required autocomplete="current-password">
-        <button type="submit">SE CONNECTER</button>
-    </form>
-    <div id="login-error">Identifiants incorrects. Accès refusé.</div>
-</div>
-
-<div id="main-content">
-    <header>
-        <h1>LOCALISATION DATA</h1>
-        <p style="color: #444; letter-spacing: 2px;">ACCÈS RESTREINT - RÉSEAU CHIFFRÉ</p>
-    </header>
-
-    <nav>
-        <a href="#ecaille">ÉCAILLE</a>
-        <a href="#cali">CALI</a>
-        <a href="#mdma">MDMA</a>
-        <a href="#crack">CRACK</a>
-        <a href="#diamant">DIAMANT</a>
-        <a href="#perle">PERLES</a>
-        <a href="#objets">TABLEAUX / ANNEAUX</a>
-    </nav>
-
-    <div class="container">
-        
-        <section id="ecaille" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte Écaille</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://cdn.discordapp.com/attachments/887425585490583603/1495519349698592778/Desktop_Screenshot_2026.04.19_-_22.19.47.50.png?ex=69e7332e&is=69e5e1ae&hm=6d5d751578085245e8a772721d01ce1c32788df61c9609edb7ee98614531d7af&" alt="Ecaille">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="cali" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Traitement Cali</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495487729776066630/Desktop_Screenshot_2026.04.19_-_20.14.02.91.png?ex=69e715bb&is=69e5c43b&hm=048b25ce0804cda22cdfac9361433e056041acd76bd5da9f0f32892f801cfb6e&=&format=webp&quality=lossless&width=1032&height=581" alt="Cali">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="mdma" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte MDMA</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://cdn.discordapp.com/attachments/1495729172499398806/1495729233849483305/Desktop_Screenshot_2026.04.20_-_12.13.19.52.png?ex=69e74de6&is=69e5fc66&hm=e6706001f481227f9a33c66d8b62c67db4b38ca8f37a7f13ccc2e3be193b692b&" alt="Recolte MDMA">
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Traitement MDMA</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://cdn.discordapp.com/attachments/1495729172499398806/1495729426162253996/Desktop_Screenshot_2026.04.20_-_12.14.27.73.png?ex=69e74e14&is=69e5fc94&hm=6c232bf44a5bcc4e00f0f3a903ad3878aeeb35c3a0fe391ea892ebae3d4951e9&" alt="Traitement MDMA">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="crack" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte Crack</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495487343350517851/Desktop_Screenshot_2026.04.19_-_20.12.33.76.png?ex=69e7155f&is=69e5c3df&hm=d854b6e6d3f7713f75d29adedc04d14654ff5a4baad85d880d3546b42c449d0e&=&format=webp&quality=lossless&width=1032&height=581" alt="Crack">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="diamant" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Récolte Diamant</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495485587686293677/Desktop_Screenshot_2026.04.19_-_20.05.32.70.png?ex=69e713bc&is=69e5c23c&hm=dc54cda7126a0b4914527f465db37d358bc52e8ea832601837dd8cc38a3afe02&=&format=webp&quality=lossless&width=1032&height=581" alt="Diamant">
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Vente Diamant</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495722993786159135/Desktop_Screenshot_2026.04.20_-_11.49.00.87.png?ex=69e74816&is=69e5f696&hm=dd5a0abb9d2ac11e477b48ccd05a605d8c9dc86d9b5f8c6bfabece2b5539b6cc&=&format=webp&quality=lossless&width=1032&height=581" alt="Vente">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="perle" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Vente Collier</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/887425585490583603/1495484923707003090/Desktop_Screenshot_2026.04.19_-_20.02.46.58.png?ex=69e7131e&is=69e5c19e&hm=8052863f6cbb8a7fc86b9c253e4fc85a50ab9710c10f7232ee1cf8795f4510a0&=&format=webp&quality=lossless&width=1032&height=581" alt="Perle">
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="objets" class="drug-section">
-            <div class="grid">
-                <div class="card">
-                    <h3>Vente Tableau / Anneau</h3>
-                    <div class="img-box" onclick="openZoom(this)">
-                        <img src="https://media.discordapp.net/attachments/1495729172499398806/1495729233849483305/Desktop_Screenshot_2026.04.20_-_12.13.19.52.png?ex=69e74de6&is=69e5fc66&hm=e6706001f481227f9a33c66d8b62c67db4b38ca8f37a7f13ccc2e3be193b692b&=&format=webp&quality=lossless&width=1032&height=581" alt="Objets">
-                    </div>
-                </div>
-            </div>
-        </section>
-
+<div class="container">
+    <div class="header">
+        <h1>PANEL SKYLAND</h1>
+        <div class="subtitle">By Playeurz</div>
     </div>
 
-    <div id="zoomModal" class="modal" onclick="this.style.display='none'">
-        <img id="zoomImg" src="">
+    <div class="inputs-area">
+        <div class="input-group">
+            <label>ID JOUEUR</label>
+            <input type="number" id="pId" placeholder="ID">
+        </div>
+        <div class="input-group">
+            <label>NIVEAU WARN</label>
+            <input type="number" id="wLvl" value="1" min="1" max="5">
+        </div>
     </div>
 
-    <footer>
-        SYSTEM_ENCRYPTED_AUTH_REQUIRED_V2.1
-    </footer>
+    <div class="section-title">Infractions Standard</div>
+    <div class="grid" id="mainGrid"></div>
+
+    <div class="section-title">Cas Particuliers</div>
+    <div class="grid" id="specGrid"></div>
+
+    <div id="result-panel">
+        <div class="cmd-label">Commande générée et copiée :</div>
+        <div class="cmd-value" id="cmdOut"></div>
+        <div class="copy-status">✅ PRÊT À ÊTRE COLLÉ (CTRL + V)</div>
+    </div>
 </div>
 
 <script>
-    // --- GESTION DU ZOOM (Inchangé) ---
-    function openZoom(el) {
-        const modal = document.getElementById('zoomModal');
-        const img = document.getElementById('zoomImg');
-        img.src = el.querySelector('img').src;
-        modal.style.display = 'flex';
-    }
+    const data = [
+        { n: "HRP", p: ["25", "40", "55", "70", "100"], r: "Action Hors RP" },
+        { n: "Spam", p: ["25", "40", "55", "70", "100"], r: "Spam chat / micro" },
+        { n: "Abandon Scene", p: ["30", "45", "60", "75", "100"], r: "Abandon de scene" },
+        { n: "Refus Scene", p: ["30", "45", "60", "75", "100"], r: "Refus de scene" },
+        { n: "Copbait", p: ["15", "30", "45", "60", "100"], r: "Copbait / Provoc" },
+        { n: "Freepunch", p: ["15", "30", "45", "60", "100"], r: "Free punch" },
+        { n: "Freekill", p: ["60", "75", "90", "105", "120"], r: "Freekill" },
+        { n: "Car Kill", p: ["60", "75", "90", "105", "120"], r: "Carkill gratuit" },
+        { n: "RDM", p: ["60", "75", "90", "105", "120"], r: "RDM" },
+        { n: "Powergaming", p: ["30", "45", "60", "75", "100"], r: "Powergaming" },
+        { n: "Metagaming", p: ["20", "40", "60", "80", "Ban 12h"], r: "metagaming" },
+        { n: "No Fear", p: ["45", "60", "75", "100", "Ban 12h"], r: "Non respect du Fear" },
+        { n: "No Pain", p: ["45", "60", "75", "100", "Ban 12h"], r: "Non respect du Pain" },
+        { n: "Fail RP", p: ["20", "35", "50", "70", "100"], r: "Fail RP" },
+        { n: "Otage Mal Géré", p: ["20", "35", "50", "70", "100"], r: "Mauvais RP otage" },
+        { n: "Braquage Ville", p: ["45", "60", "80", "110", "Ban 12h"], r: "Braquage zone de masse rp" },
+        { n: "Tir sur Police", p: ["90", "110", "130", "150", "Ban 12h"], r: "Tir sur la Police" },
+        { n: "Tir sur EMS", p: ["90", "110", "130", "150", "Ban 12h"], r: "Tir sur les EMS" },
+        { n: "Glitch", p: ["50", "75", "90", "120", "Ban 24-72h"], r: "Glitch / Exploit bug" },
+        { n: "Insultes HRP", p: ["25", "45", "60", "120", "Ban 12h"], r: "Insultes Hors RP" },
+        { n: "Insultes Staff", p: ["200", "230", "260", "290", "Ban 12h"], r: "Manque de respect Staff" },
+        { n: "Streamsniping", p: ["30", "60", "90", "120", "Ban 48h"], r: "Streamsniping" },
+        { n: "Cheat", p: ["Ban 48h", "Ban 72h", "Ban 7j", "Ban 14j", "Ban perm"], r: "Utilisation de cheat" },
+        { n: "Duplication", p: ["Ban 48h", "Ban 72h", "Ban 7j", "Ban 14j", "Ban perm"], r: "Duplication d'items" }
+    ];
 
-    // --- GESTION DU LOGIN (Ajouté) ---
-    const loginOverlay = document.getElementById('login-overlay');
-    const mainContent = document.getElementById('main-content');
-    const loginForm = document.getElementById('login-form');
-    const loginError = document.getElementById('login-error');
-    const usernameInput = document.getElementById('username');
-    const passwordInput = document.getElementById('password');
+    const specials = [
+        { n: "Descente sans ticket", d: "200", r: "Descente non autorisee" },
+        { n: "Alt + F4 en scene", d: "260", r: "Alt+F4 en scene" },
+        { n: "Propos Graves", d: "Ban direct", r: "Propos discriminatoires" }
+    ];
 
-    // Vérification du mot de passe au chargement
-    // (Utilisation de sessionStorage pour une sécurité de base par session)
-    if (sessionStorage.getItem('networkAuth') === 'true') {
-        showContent();
-    } else {
-        hideContent();
-    }
+    const mG = document.getElementById('mainGrid');
+    const sG = document.getElementById('specGrid');
 
-    loginForm.addEventListener('submit', function(e) {
-        e.preventDefault(); // Empêche le rechargement de la page
-
-        const username = usernameInput.value;
-        const password = passwordInput.value;
-
-        // VERIFICATION : identifiant "admin" / mot de passe "fedala"
-        if (username === 'admin' && password === 'fedala') {
-            // Succès
-            sessionStorage.setItem('networkAuth', 'true');
-            showContent();
-            // Réinitialise les champs
-            usernameInput.value = '';
-            passwordInput.value = '';
-        } else {
-            // Échec
-            loginError.style.display = 'block';
-            passwordInput.value = ''; // Efface le mot de passe
-        }
+    data.forEach(s => {
+        let b = document.createElement('button');
+        b.innerText = s.n;
+        b.onclick = () => gen(s.p, s.r, true);
+        mG.appendChild(b);
     });
 
-    function showContent() {
-        loginOverlay.style.display = 'none';
-        mainContent.style.display = 'flex'; // Rétablit la structure d'origine
-        document.body.style.display = 'block'; // Enlève le centrage du login
-        document.body.style.height = 'auto';
-    }
+    specials.forEach(s => {
+        let b = document.createElement('button');
+        b.innerText = s.n;
+        b.onclick = () => gen(s.d, s.r, false);
+        sG.appendChild(b);
+    });
 
-    function hideContent() {
-        loginOverlay.style.display = 'block';
-        mainContent.style.display = 'none';
-        // Force le centrage du login
-        document.body.style.display = 'flex';
-        document.body.style.justifyContent = 'center';
-        document.body.style.alignItems = 'center';
-        document.body.style.height = '100vh';
+    function gen(pals, rClean, isN) {
+        const id = document.getElementById('pId').value || "0";
+        const lvl = document.getElementById('wLvl').value || 1;
+        let cmd = "";
+
+        if(isN) {
+            let idx = Math.max(0, Math.min(lvl - 1, 4));
+            let d = pals[idx];
+            let type = d.includes("Ban") ? "/ban" : "/jail";
+            cmd = `${type} ${id} ${d} "${rClean} - Warn ${lvl}"`;
+        } else {
+            let type = pals.includes("Ban") ? "/ban" : "/jail";
+            let d = (pals === "Ban direct") ? "24h" : pals;
+            cmd = `${type} ${id} ${d} "${rClean}"`;
+        }
+
+        document.getElementById('cmdOut').innerText = cmd;
+        document.getElementById('result-panel').style.display = 'block';
+        navigator.clipboard.writeText(cmd);
     }
 </script>
 
