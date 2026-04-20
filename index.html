@@ -48,7 +48,6 @@
             font-weight: 700;
             text-transform: uppercase;
             color: #fff;
-            /* Lueur adoucie pour le confort visuel */
             text-shadow: 0 2px 10px rgba(230, 0, 0, 0.5);
             letter-spacing: 8px;
         }
@@ -196,45 +195,46 @@
     <div class="inputs-area">
         <div class="input-group">
             <label>ID JOUEUR</label>
-            <input type="number" id="pId" placeholder="ID">
+            <input type="number" id="target" placeholder="ID">
         </div>
         <div class="input-group">
             <label>NIVEAU WARN</label>
-            <input type="number" id="wLvl" value="1" min="1" max="5">
+            <input type="number" id="lvl" value="1" min="1" max="5">
         </div>
     </div>
 
     <div class="section-title">Infractions Standard</div>
-    <div class="grid" id="mainGrid"></div>
+    <div id="grid-std" class="grid"></div>
 
     <div class="section-title">Cas Particuliers</div>
-    <div class="grid" id="specGrid"></div>
+    <div id="grid-spec" class="grid"></div>
 
     <div id="result-panel">
         <div class="cmd-label">Commande générée et copiée :</div>
-        <div class="cmd-value" id="cmdOut"></div>
+        <div class="cmd-value" id="res"></div>
         <div class="copy-status">✅ PRÊT À ÊTRE COLLÉ (CTRL + V)</div>
     </div>
 </div>
 
 <script>
-    const data = [
+    // Config des sanctions
+    const rules = [
         { n: "HRP", p: ["25", "40", "55", "70", "100"], r: "Action Hors RP" },
         { n: "Spam", p: ["25", "40", "55", "70", "100"], r: "Spam chat / micro" },
         { n: "Abandon Scene", p: ["30", "45", "60", "75", "100"], r: "Abandon de scene" },
         { n: "Refus Scene", p: ["30", "45", "60", "75", "100"], r: "Refus de scene" },
         { n: "Copbait", p: ["15", "30", "45", "60", "100"], r: "Copbait / Provoc" },
-        { n: "Freepunch", p: ["15", "30", "45", "60", "100"], r: "Free punch" },
-        { n: "Freekill", p: ["60", "75", "90", "105", "120"], r: "Freekill" },
+        { n: "Freepunch", p: ["15", "30", "45", "60", "100"], r: "free punch" },
+        { n: "Freekill", p: ["60", "75", "90", "105", "120"], r: "freekill" },
         { n: "Car Kill", p: ["60", "75", "90", "105", "120"], r: "Carkill gratuit" },
-        { n: "RDM", p: ["60", "75", "90", "105", "120"], r: "RDM" },
-        { n: "Powergaming", p: ["30", "45", "60", "75", "100"], r: "Powergaming" },
+        { n: "RDM", p: ["60", "75", "90", "105", "120"], r: "Tirs ou violences gratuits" },
+        { n: "Powergaming", p: ["30", "45", "60", "75", "100"], r: "Powergaming / No RP" },
         { n: "Metagaming", p: ["20", "40", "60", "80", "Ban 12h"], r: "metagaming" },
         { n: "No Fear", p: ["45", "60", "75", "100", "Ban 12h"], r: "Non respect du Fear" },
         { n: "No Pain", p: ["45", "60", "75", "100", "Ban 12h"], r: "Non respect du Pain" },
         { n: "Fail RP", p: ["20", "35", "50", "70", "100"], r: "Fail RP" },
         { n: "Otage Mal Géré", p: ["20", "35", "50", "70", "100"], r: "Mauvais RP otage" },
-        { n: "Braquage Ville", p: ["45", "60", "80", "110", "Ban 12h"], r: "Braquage zone de masse rp" },
+        { n: "Braquage Ville", p: ["45", "60", "80", "110", "Ban 12h"], r: "Braquage zone safe" },
         { n: "Tir sur Police", p: ["90", "110", "130", "150", "Ban 12h"], r: "Tir sur la Police" },
         { n: "Tir sur EMS", p: ["90", "110", "130", "150", "Ban 12h"], r: "Tir sur les EMS" },
         { n: "Glitch", p: ["50", "75", "90", "120", "Ban 24-72h"], r: "Glitch / Exploit bug" },
@@ -251,42 +251,47 @@
         { n: "Propos Graves", d: "Ban direct", r: "Propos discriminatoires" }
     ];
 
-    const mG = document.getElementById('mainGrid');
-    const sG = document.getElementById('specGrid');
+    const stdGrid = document.querySelector('#grid-std');
+    const spcGrid = document.querySelector('#grid-spec');
 
-    data.forEach(s => {
-        let b = document.createElement('button');
-        b.innerText = s.n;
-        b.onclick = () => gen(s.p, s.r, true);
-        mG.appendChild(b);
+    // Build buttons
+    rules.forEach(s => {
+        let btn = document.createElement('button');
+        btn.innerHTML = s.n;
+        btn.onclick = () => makeCmd(s.p, s.r, true);
+        stdGrid.appendChild(btn);
     });
 
     specials.forEach(s => {
-        let b = document.createElement('button');
-        b.innerText = s.n;
-        b.onclick = () => gen(s.d, s.r, false);
-        sG.appendChild(b);
+        let btn = document.createElement('button');
+        btn.innerHTML = s.n;
+        btn.onclick = () => makeCmd(s.d, s.r, false);
+        spcGrid.appendChild(btn);
     });
 
-    function gen(pals, rClean, isN) {
-        const id = document.getElementById('pId').value || "0";
-        const lvl = document.getElementById('wLvl').value || 1;
-        let cmd = "";
+    function makeCmd(val, reason, mode) {
+        const id = document.querySelector('#target').value || "0";
+        const w = document.querySelector('#lvl').value || 1;
+        let c = "";
 
-        if(isN) {
-            let idx = Math.max(0, Math.min(lvl - 1, 4));
-            let d = pals[idx];
-            let type = d.includes("Ban") ? "/ban" : "/jail";
-            cmd = `${type} ${id} ${d} "${rClean} - Warn ${lvl}"`;
+        if(mode) {
+            let i = Math.max(0, Math.min(w - 1, 4));
+            let t = val[i];
+            let type = t.includes("Ban") ? "/ban" : "/jail";
+            c = `${type} ${id} ${t} "${reason} - Warn ${w}"`;
         } else {
-            let type = pals.includes("Ban") ? "/ban" : "/jail";
-            let d = (pals === "Ban direct") ? "24h" : pals;
-            cmd = `${type} ${id} ${d} "${rClean}"`;
+            let type = val.includes("Ban") ? "/ban" : "/jail";
+            let d = (val === "Ban direct") ? "24h" : val;
+            c = `${type} ${id} ${d} "${reason}"`;
         }
 
-        document.getElementById('cmdOut').innerText = cmd;
-        document.getElementById('result-panel').style.display = 'block';
-        navigator.clipboard.writeText(cmd);
+        const out = document.querySelector('#res');
+        out.innerHTML = c;
+        document.querySelector('#result-panel').style.display = 'block';
+        
+        navigator.clipboard.writeText(c).catch(err => {
+            console.error('Erreur clip:', err);
+        });
     }
 </script>
 
