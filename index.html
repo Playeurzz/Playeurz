@@ -2,224 +2,193 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Skyland Modération - Full Barème</title>
+    <title>Skyland Modération - Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --red: #e60000; --bg: #050505; --card: #0f0f0f; --accent: #f39c12; --green: #2ecc71; }
         body { background: var(--bg); color: #fff; font-family: 'Rajdhani', sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 1100px; background: var(--card); padding: 30px; border-radius: 4px; border: 1px solid #1a1a1a; }
-        
         h1 { color: var(--red); text-transform: uppercase; margin: 0; text-shadow: 0 0 15px rgba(230,0,0,0.5); font-size: 2.2rem; }
         .author { font-size: 11px; color: #444; margin-bottom: 20px; text-transform: uppercase; }
-
-        /* Interface Principale */
         .controls { display: grid; grid-template-columns: 2fr 1.5fr; gap: 15px; margin-bottom: 20px; }
         input, select, textarea { background: #151515; border: 1px solid #333; color: #fff; padding: 12px; font-family: inherit; font-size: 16px; outline: none; border-radius: 4px; }
         input:focus { border-color: var(--red); }
         textarea { grid-column: span 2; height: 50px; resize: none; border: 1px dashed #444; }
-
-        /* Grilles de boutons */
         .section-title { border-left: 4px solid var(--red); padding-left: 15px; margin: 25px 0 12px; text-transform: uppercase; font-size: 1.1rem; letter-spacing: 1px; color: #ccc; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
-        
         .infraction-btn { background: #131313; border: 1px solid #222; color: #aaa; padding: 12px; cursor: pointer; transition: 0.2s; font-family: inherit; text-align: left; font-size: 14px; }
         .infraction-btn:hover { background: var(--red); color: #fff; transform: translateY(-2px); border-color: #ff4d4d; box-shadow: 0 4px 12px rgba(230,0,0,0.3); }
-        
-        /* Boutons spéciaux */
         .btn-instant { border-color: #f1c40f55; color: #f1c40f; }
         .btn-grave { border-color: #e60000; color: #e60000; font-weight: bold; }
-
-        /* Historique */
         .history { margin-top: 30px; border-top: 1px solid #222; padding-top: 15px; }
         .hist-item { background: #080808; padding: 8px 12px; margin-bottom: 4px; border-radius: 4px; font-size: 13px; border-left: 3px solid var(--red); display: flex; justify-content: space-between; align-items: center; }
-
-        /* Paramètres & Notif */
         #settings-btn { position: fixed; bottom: 20px; right: 20px; background: #222; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; font-size: 20px; color: white; opacity: 0.5; transition: 0.3s; }
         #settings-btn:hover { opacity: 1; transform: rotate(90deg); }
         #settings-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 2000; padding: 40px; overflow-y: auto; }
         #notif { position: fixed; top: 20px; right: 20px; padding: 15px 30px; border-radius: 4px; display: none; z-index: 3000; font-weight: bold; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        
         .config-card { background: #111; padding: 15px; border-radius: 4px; margin-bottom: 15px; border: 1px solid #222; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Skyland Modération <span style="font-size: 0.4em; vertical-align: middle; color: #666;">PANEL</span></h1>
+    <h1>Skyland Modération <span style="font-size: 0.4em; vertical-align: middle; color: #666;">PANEL EXPERT</span></h1>
     <div class="author">By Playeurz</div>
 
     <div class="controls">
-        <input type="text" id="target" placeholder="ID DU JOUEUR">
+        <input type="text" id="targ" placeholder="ID JOUEUR (STEAMID / ID SERVEUR)">
         <select id="lvl">
             <optgroup label="--- ÉTAPE PÉDAGOGIQUE ---">
-                <option value="0">SAFE 0 (Avertissement Oral)</option>
+                <option value="0">SAFE 0 (Oral)</option>
                 <option value="1">SAFE 1 (Warn)</option>
                 <option value="2">SAFE 2 (Warn)</option>
                 <option value="3">SAFE 3 (Warn)</option>
                 <option value="4">SAFE 4 (Warn)</option>
             </optgroup>
             <optgroup label="--- ÉTAPE SANCTION ---">
-                <option value="5" selected>NIVEAU 1 (Premier palier)</option>
+                <option value="5" selected>NIVEAU 1</option>
                 <option value="6">NIVEAU 2</option>
                 <option value="7">NIVEAU 3</option>
                 <option value="8">NIVEAU 4</option>
-                <option value="9">NIVEAU 5 (Palier Max / Ban)</option>
+                <option value="9">NIVEAU 5</option>
             </optgroup>
         </select>
-        <textarea id="note" placeholder="Ajouter une note de contexte (ex: insultes parentales, récidive...)"></textarea>
+        <textarea id="note" placeholder="Notes (ex: insultes, contexte...)"></textarea>
     </div>
 
-    <div id="main-grid"></div>
+    <div id="grid-wrap"></div>
 
     <div class="history">
         <div class="section-title">Flux d'activité</div>
-        <div id="hist-list"></div>
+        <div id="hist"></div>
     </div>
 </div>
 
-<button id="settings-btn" onclick="toggleSettings()">⚙️</button>
+<button id="settings-btn" onclick="openCfg()">⚙️</button>
 
 <div id="settings-modal">
     <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="color:white; margin:0;">Éditeur de Barème Intuitif</h2>
-        <button onclick="toggleSettings()" style="background:var(--red); color:white; border:none; padding:10px 20px; cursor:pointer;">RETOUR</button>
+        <h2 style="color:white; margin:0;">Éditeur de Barème</h2>
+        <button onclick="openCfg()" style="background:var(--red); color:white; border:none; padding:10px 20px; cursor:pointer;">RETOUR</button>
     </div>
-    <div id="config-builder"></div>
-    <button onclick="saveAdvancedConfig()" style="background:var(--green); color:white; padding:15px; width:100%; border:none; cursor:pointer; font-weight:bold; margin-top:20px;">ENREGISTRER LES MODIFICATIONS</button>
+    <div id="cfg-builder"></div>
+    <button onclick="saveCfg()" style="background:var(--green); color:white; padding:15px; width:100%; border:none; cursor:pointer; font-weight:bold; margin-top:20px;">ENREGISTRER</button>
 </div>
 
 <div id="notif"></div>
 
 <script>
-    // --- INTÉGRATION DE TOUTES TES INFRACTIONS ---
-    const skyBarème = {
+    const $ = q => document.querySelector(q);
+    const err = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
+
+    const rawData = {
         "Comportement & Chat": [
             { "n": "HRP / Spam", "t": [25, 40, 55, 70, 100] },
             { "n": "Insultes HRP", "t": [25, 45, 60, 120, "12h"] },
-            { "n": "Streamsniping / Info Live", "t": [30, 60, 90, 120, "48h"] },
+            { "n": "Streamsniping", "t": [30, 60, 90, 120, "48h"] },
             { "n": "Copbait", "t": [15, 30, 45, 60, 100] },
-            { "n": "Freepunch", "t": [15, 30, 45, 60, 100] }
+            { "n": "Freepunch", "t": [15, 30, 45, 60, 100] },
+            { "n": "Insultes staff", "t": [200, 230, 260, 290, "12h"] }
         ],
         "Serious RP": [
-            { "n": "Freekill / Car Kill / RDM", "t": [60, 75, 90, 105, 120] },
-            { "n": "Abandon / Refus de scène", "t": [30, 45, 60, 75, 100] },
+            { "n": "Freekill / RDM", "t": [60, 75, 90, 105, 120] },
+            { "n": "Refus de scène", "t": [30, 45, 60, 75, 100] },
             { "n": "Powergaming", "t": [30, 45, 60, 75, 100] },
             { "n": "Metagaming", "t": [20, 40, 60, 80, "12h"] },
             { "n": "No Fear / No Pain", "t": [45, 60, 75, 100, "12h"] },
-            { "n": "Fail RP / Otage mal géré", "t": [20, 35, 50, 70, 100] }
+            { "n": "Fail RP", "t": [20, 35, 50, 70, 100] }
         ],
-        "Infractions Staff & Jeu": [
-            { "n": "Insultes staff / Menaces", "t": [200, 230, 260, 290, "12h"] },
-            { "n": "Glitch / Exploit Bug", "t": [50, 75, 90, 120, "48h"] },
-            { "n": "Duplication / Cheat", "t": ["48h", "72h", "7j", "14j", "perm"] }
+        "Lourd & Staff": [
+            { "n": "Glitch / Exploit", "t": [50, 75, 90, 120, "48h"] },
+            { "n": "Duplication / Cheat", "t": ["48h", "72h", "7j", "14j", "perm"] },
+            { "n": "Tir Police/EMS", "t": [90, 110, 130, 150, "12h"] },
+            { "n": "Braquage Safe", "t": [45, 60, 80, 110, "12h"] }
         ],
-        "Forces de l'ordre & Zones": [
-            { "n": "Tir sur Police/Ambulance", "t": [90, 110, 130, 150, "12h"] },
-            { "n": "Braquage Ville / Zone Safe", "t": [45, 60, 80, 110, "12h"] }
-        ],
-        "Sanctions Spécifiques": [
-            { "n": "Descente sans ticket", "t": [200, 200, 200, 200, 200], "special": true },
-            { "n": "ALT + F4 en scène", "t": [260, 260, 260, 260, 260], "special": true },
-            { "n": "PROPOS DISCRIMINATOIRES", "t": ["24h", "48h", "7j", "30j", "perm"], "grave": true }
+        "Spécial": [
+            { "n": "Descente sans ticket", "t": [200], "s": 1 },
+            { "n": "ALT + F4 en scène", "t": [260], "s": 1 },
+            { "n": "DISCRIMINATION", "t": ["24h", "48h", "7j", "30j", "perm"], "g": 1 }
         ]
     };
 
-    let rules = JSON.parse(localStorage.getItem('sky_final_cfg')) || skyBarème;
-    const audioErr = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
+    let data = JSON.parse(localStorage.getItem('sky_cfg')) || rawData;
 
-    const renderMain = () => {
-        const main = document.querySelector('#main-grid');
-        main.innerHTML = '';
-        document.querySelector('#target').value = localStorage.getItem('sky_last_id') || '';
+    const render = () => {
+        $('#grid-wrap').innerHTML = '';
+        $('#targ').value = localStorage.getItem('sky_id') || '';
 
-        for (let cat in rules) {
-            let html = `<div class="section-title">${cat}</div><div class="grid">`;
-            rules[cat].forEach((r, idx) => {
-                let cl = "infraction-btn";
-                if(r.special) cl += " btn-instant";
-                if(r.grave) cl += " btn-grave";
-                html += `<button class="${cl}" onclick="execute('${cat}', ${idx})">${r.n}</button>`;
+        Object.keys(data).forEach(cat => {
+            let h = `<div class="section-title">${cat}</div><div class="grid">`;
+            data[cat].forEach((r, i) => {
+                let c = "infraction-btn" + (r.s ? " btn-instant" : "") + (r.g ? " btn-grave" : "");
+                h += `<button class="${c}" onclick="run('${cat}', ${i})">${r.n}</button>`;
             });
-            html += `</div>`;
-            main.innerHTML += html;
-        }
-        updateHistory();
+            $('#grid-wrap').innerHTML += h + `</div>`;
+        });
+        showHist();
     };
 
-    const execute = (cat, index) => {
-        const r = rules[cat][index];
-        const target = document.querySelector('#target').value || 'ID_MANQUANT';
-        const lvl = parseInt(document.querySelector('#lvl').value);
-        const note = document.querySelector('#note').value;
-        localStorage.setItem('sky_last_id', target);
+    const run = (c, i) => {
+        const r = data[c][i];
+        const id = $('#targ').value || 'ID_MANQUANT';
+        const v = parseInt($('#lvl').value);
+        const n = $('#note').value;
+        localStorage.setItem('sky_id', id);
 
-        // Bloquer si Pédagogie (sauf pour les boutons Graves/Spéciaux qui outrepassent)
-        if (lvl < 5 && !r.grave && !r.special) {
-            audioErr.play();
-            return showNotif(`⚠️ PÉDAGOGIE : Faire un rappel oral pour ${r.n}`, '#f39c12');
+        if (v < 5 && !r.g && !r.s) {
+            err.play();
+            return msg(`⚠️ PÉDAGOGIE : Rappel oral - ${r.n}`, '#f39c12');
         }
 
-        const idx = (r.special) ? 0 : lvl - 5; 
-        const val = r.t[idx] || r.t[r.t.length-1];
+        const idx = r.s ? 0 : v - 5;
+        const t = r.t[idx] || r.t[r.t.length-1];
+        const cmd = (typeof t === 'string' && (t.includes('h') || t.includes('j') || t.includes('p'))) ? 'ban' : 'jail';
+        const str = `/${cmd} ${id} ${t} ${r.n} ${n ? '['+n+']' : ''}`;
         
-        let cmd = "jail";
-        if (typeof val === 'string' && (val.includes('h') || val.includes('j') || val.includes('perm'))) cmd = "ban";
-        
-        const finalCmd = `/${cmd} ${target} ${val} ${r.n} ${note ? '['+note+']' : ''}`;
-        
-        navigator.clipboard.writeText(finalCmd);
-        showNotif(`COPIÉ : ${finalCmd}`, '#2ecc71');
-        addHistory(finalCmd);
+        navigator.clipboard.writeText(str);
+        msg(`COPIÉ : ${str}`, '#2ecc71');
+        log(str);
     };
 
-    // --- SYSTÈME DE CONFIGURATION ---
-    const buildConfigUI = () => {
-        const builder = document.querySelector('#config-builder');
-        builder.innerHTML = '';
-        for (let cat in rules) {
-            let card = `<div class="config-card"><strong style="color:var(--red)">${cat}</strong><div style="margin-top:10px">`;
-            rules[cat].forEach((r, i) => {
-                card += `<div style="display:flex; gap:5px; margin-bottom:5px;">
-                    <input type="text" value="${r.n}" style="flex:2" onchange="rules['${cat}'][${i}].n = this.value">
-                    <input type="text" value="${r.t.join(',')}" style="flex:3" onchange="rules['${cat}'][${i}].t = this.value.split(',')">
-                </div>`;
-            });
-            card += `</div></div>`;
-            builder.innerHTML += card;
+    const msg = (m, b) => {
+        const el = $('#notif');
+        el.innerText = m; el.style.background = b; el.style.display = 'block';
+        setTimeout(() => el.style.display = 'none', 3500);
+    };
+
+    const log = (c) => {
+        let h = JSON.parse(localStorage.getItem('sky_h')) || [];
+        h.unshift({ c, t: new Date().toLocaleTimeString() });
+        localStorage.setItem('sky_h', JSON.stringify(h.slice(0, 8)));
+        showHist();
+    };
+
+    const showHist = () => {
+        const h = JSON.parse(localStorage.getItem('sky_h')) || [];
+        $('#hist').innerHTML = h.map(x => `<div class="hist-item"><span>${x.c}</span><span style="color:#444">${x.t}</span></div>`).join('');
+    };
+
+    const openCfg = () => {
+        const m = $('#settings-modal');
+        if (m.style.display !== 'block') {
+            $('#cfg-builder').innerHTML = Object.keys(data).map(c => `
+                <div class="config-card"><strong>${c}</strong>
+                ${data[c].map((r, i) => `
+                    <div style="display:flex; gap:5px; margin-top:5px">
+                        <input type="text" value="${r.n}" onchange="data['${c}'][${i}].n=this.value" style="flex:1">
+                        <input type="text" value="${r.t.join(',')}" onchange="data['${c}'][${i}].t=this.value.split(',')" style="flex:1">
+                    </div>`).join('')}
+                </div>`).join('');
         }
+        m.style.display = m.style.display === 'block' ? 'none' : 'block';
     };
 
-    const toggleSettings = () => {
-        const m = document.querySelector('#settings-modal');
-        if (m.style.display !== 'block') buildConfigUI();
-        m.style.display = (m.style.display === 'block') ? 'none' : 'block';
+    const saveCfg = () => {
+        localStorage.setItem('sky_cfg', JSON.stringify(data));
+        render(); openCfg(); msg("✅ Modifs enregistrées", "#2ecc71");
     };
 
-    const saveAdvancedConfig = () => {
-        localStorage.setItem('sky_final_cfg', JSON.stringify(rules));
-        renderMain(); toggleSettings();
-        showNotif("✅ Barème mis à jour !", "#2ecc71");
-    };
-
-    const showNotif = (msg, bg) => {
-        const n = document.querySelector('#notif');
-        n.innerText = msg; n.style.background = bg; n.style.display = 'block';
-        setTimeout(() => n.style.display = 'none', 4000);
-    };
-
-    const addHistory = (cmd) => {
-        let hist = JSON.parse(localStorage.getItem('sky_hist')) || [];
-        hist.unshift({ cmd, time: new Date().toLocaleTimeString() });
-        localStorage.setItem('sky_hist', JSON.stringify(hist.slice(0, 8)));
-        updateHistory();
-    };
-
-    const updateHistory = () => {
-        const hist = JSON.parse(localStorage.getItem('sky_hist')) || [];
-        document.querySelector('#hist-list').innerHTML = hist.map(h => `<div class="hist-item"><span>${h.cmd}</span><span style="color:#444; font-size:10px;">${h.time}</span></div>`).join('');
-    };
-
-    renderMain();
+    render();
 </script>
 </body>
 </html>
